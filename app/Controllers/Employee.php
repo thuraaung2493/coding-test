@@ -2,10 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Models\DepartmentModel;
 use App\Models\EmployeeModel;
+use Exception;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Writer;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Throwable;
 
 class Employee extends BaseController
 {
@@ -47,6 +50,9 @@ class Employee extends BaseController
         $lists = [];
 
         foreach ($sheetData as $data) {
+            $departmentModel = \model(DepartmentModel::class);
+            $department = $departmentModel->where('name', $data[7])->first();
+
             $lists[] = [
                 'name' => $data[1],
                 'dob' => $data[2],
@@ -54,21 +60,72 @@ class Employee extends BaseController
                 'email' => $data[4],
                 'phone_number' => $data[5],
                 'hire_date' => $data[6],
-                'department_id' => $data[7],
+                'department_id' => $department?->id ?? $departmentModel->insert(['name' => $data[7]]),
             ];
         }
 
         if (\count($lists) > 0) {
             $model = \model(EmployeeModel::class);
-            $result = $model->bulkInsert($lists);
+            try {
+                $result = $model->bulkInsert($lists);
+            } catch (Throwable $t) {
+                session()->setFlashdata('error', $t->getMessage());
+            }
 
-            if ($result) {
+
+            if (isset($result)) {
                 session()->setFlashdata('success', 'All Entries are imported successfully.');
             } else {
                 session()->setFlashdata('error', 'Something went wrong. Please try again.');
             }
         }
 
+        return \redirect()->to('/');
+    }
+
+    public function updateBulk()
+    {
+        \helper('form');
+
+        if (!$this->validate('uploadRules')) {
+            session()->setFlashdata('error', $this->validator->getError('file'));
+
+            return \redirect()->to('/');
+        }
+
+        if (!isset($_FILES['file']['name'])) {
+            session()->setFlashdata('error', 'Something went wrong. Please try again.');
+
+            return \redirect()->to('/');
+        }
+
+        $reader = new Xlsx();
+        $spreadsheet = $reader->load($_FILES['file']['tmp_name']);
+        $sheetData = $spreadsheet->getActiveSheet()->toArray();
+
+        foreach ($sheetData as $data) {
+            $departmentModel = \model(DepartmentModel::class);
+            $department = $departmentModel->where('name', $data[7])->first();
+
+            $value = [
+                'name' => $data[1],
+                'dob' => $data[2],
+                'gender' => $data[3],
+                'email' => $data[4],
+                'phone_number' => $data[5],
+                'hire_date' => $data[6],
+                'department_id' => $department?->id ?? $departmentModel->insert(['name' => $data[7]]),
+            ];
+
+            $model = \model(EmployeeModel::class);
+            try {
+                $model->update($data[0], $value);
+            } catch (Throwable) {
+                continue;
+            }
+        }
+
+        session()->setFlashdata('success', 'All Entries are updated successfully.');
         return \redirect()->to('/');
     }
 
@@ -125,6 +182,40 @@ class Employee extends BaseController
 
             exit;
         }
+    }
+
+    public function edit($id = null)
+    {
+        \helper('form');
+
+        $employee = \model(EmployeeModel::class);
+        $department = \model(DepartmentModel::class);
+
+        $data['employee'] = $employee->with('departments')->find($id);
+        $data['departments'] = $department->findAll();
+
+        return \view('employees/edit', $data);
+    }
+
+    public function update($id = null)
+    {
+        \helper('form');
+
+        if (!$this->validate('updateEmployeeRules')) {
+            return redirect()->to('/employees/' . $id . '/edit')
+                ->withInput()
+                ->with('validation', $this->validator);
+        }
+
+        $employee = $this->validator->getValidated();
+
+        $model = \model(EmployeeModel::class);
+
+        $model->update($id, $employee);
+
+        session()->setFlashdata('success', 'Successful Edited');
+
+        return \redirect()->to('/');
     }
 
     public function destroy($id = null)

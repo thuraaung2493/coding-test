@@ -76,6 +76,33 @@ class Validation extends BaseConfig
         ],
     ];
 
+    public $updateEmployeeRules = [
+        'name' => [
+            'rules' => 'required|max_length[50]',
+            'label' => 'Name',
+        ],
+        'dob' => [
+            'rules' => 'required',
+            'label' => 'Date of birth',
+        ],
+        'gender' => [
+            'rules' => 'required|in_list[Male,Female,Other]',
+            'label' => 'Date of birth',
+        ],
+        'department_id' => [
+            'rules' => 'required',
+            'label' => 'Department',
+        ],
+        'email' => [
+            'rules' => 'required|valid_email',
+            'label' => 'Email Address',
+        ],
+        'phone_number' => [
+            'rules' => 'required|max_length[15]',
+            'label' => 'Phone Number',
+        ],
+    ];
+
     public $uploadRules = [
         'file' => [
             'rules' => 'uploaded[file]|ext_in[file,xlsx]',

@@ -7,12 +7,20 @@
 
 <?= $this->section('content') ?>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
             <?php if (session('error')) : ?>
-                <div class="alert alert-error alert-dismissible fade show text-center" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <?= session('error') ?>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
+            <?php if (session('success')) : ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <?= session('success') ?>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -30,11 +38,34 @@
 
                         <div class="input-group mb-3">
                             <div class="custom-file">
-                                <input type="file" name="file" class="custom-file-input" id="inputGroupFile02">
-                                <label class="custom-file-label" for="inputGroupFile02">Choose Excel File</label>
+                                <input type="file" name="file" class="custom-file-input" id="excel-upload">
+                                <label class="custom-file-label" for="excel-upload">Choose Excel File</label>
                             </div>
                             <div class="input-group-append">
-                                <button type="submit" class="input-group-text">Upload</button>
+                                <button class="btn btn-outline-secondary" type="submit" id="excel-upload-addon">Upload</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card">
+                <p class="card-header">Update From Excel File</p>
+                <div class="card-body">
+                    <form action="/upload/update" method="post" enctype="multipart/form-data">
+                        <?= csrf_field() ?>
+
+                        <div class="input-group mb-3">
+                            <div class="custom-file">
+                                <input type="file" name="file" class="custom-file-input" id="update-excel">
+                                <label class="custom-file-label" for="update-excel">Choose Excel File</label>
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="submit" id="update-excel-addon">Update</button>
                             </div>
                         </div>
                     </form>
@@ -76,7 +107,7 @@
                                         <td><?php echo $employee->hire_date; ?></td>
                                         <td><?php echo $employee->department->name; ?></td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm">Edit</button>
+                                            <a href="/employees/<?= $employee->id ?>/edit" class="btn btn-primary btn-sm">Edit</a>
                                             <button data-id="<?= $employee->id ?>" class="delete-btn btn btn-danger btn-sm">Delete</button>
                                         </td>
                                     </tr>
