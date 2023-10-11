@@ -21,4 +21,4 @@ $routes->post('register', [Register::class, 'store']);
 
 $routes->get('login', [Login::class, 'index']);
 $routes->post('login', [Login::class, 'store']);
-$routes->post('logout', [Login::class, 'logout', ['filter' => 'auth']]);
+$routes->post('logout', [Login::class, 'logout'], ['filter' => 'auth']);

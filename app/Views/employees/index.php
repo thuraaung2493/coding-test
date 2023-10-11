@@ -86,12 +86,13 @@
                             <tr>
                                 <th>Id</th>
                                 <th>Name</th>
-                                <th>DOB</th>
+                                <th>Date of birth</th>
                                 <th>Gender</th>
                                 <th>Email</th>
                                 <th>Phone</th>
-                                <th>Hire Date</th>
+                                <th>Hiring Date</th>
                                 <th>Department</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -112,6 +113,10 @@
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
+                            <?php else : ?>
+                                <tr>
+                                    <td class="text-center" colspan="9">No data</td>
+                                </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>

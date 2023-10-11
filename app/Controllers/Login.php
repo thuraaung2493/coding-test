@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use CodeIgniter\Exceptions\PageNotFoundException;
 
 class Login extends BaseController
 {
